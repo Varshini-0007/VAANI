@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vaani: your personal friend</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#05060d;--navy:#0a1030;--navy2:#141c4d;--p:#8b5cf6;--p2:#a78bfa;--t:#e8eaff;--m:#8d94bd;--line:#232b63;--ok:#7ee2b8;--bad:#ff8aa1}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}
+body{font-family:Sora,system-ui,sans-serif;color:var(--t);background:radial-gradient(900px 500px at 15% -10%,#2a1b6b66,transparent),radial-gradient(800px 600px at 100% 100%,#14206b55,transparent),linear-gradient(160deg,var(--bg),var(--navy) 70%,#07091a);background-attachment:fixed}
+header{display:flex;justify-content:space-between;align-items:center;padding:18px 28px;gap:12px;flex-wrap:wrap}
+h1{margin:0;font-size:22px;font-weight:600;letter-spacing:.5px}h1 small{display:block;font-weight:300;font-size:12px;color:var(--m);letter-spacing:0}
+.seg{display:flex;background:#0d1238;border:1px solid var(--line);border-radius:99px;padding:3px}
+.seg button{background:none;border:0;color:var(--m);padding:7px 14px;border-radius:99px;font:inherit;font-size:13px;cursor:pointer}
+.seg button.on{background:var(--p);color:#fff}
+main{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;padding:0 28px 28px;max-width:1200px;margin:auto}
+@media(max-width:860px){main{grid-template-columns:1fr;padding:0 14px 20px}}
+.card{background:linear-gradient(180deg,#0e1440cc,#0a0f30cc);border:1px solid var(--line);border-radius:18px;padding:18px}
+.card h2{margin:0 0 10px;font-size:14px;font-weight:600;color:var(--p2)}
+.stage{display:flex;flex-direction:column;align-items:center;gap:14px;min-height:560px}
+#orb{width:120px;height:120px;border-radius:50%;border:0;cursor:pointer;color:#fff;font:600 13px Sora;background:radial-gradient(circle at 35% 30%,#c4b5fd,var(--p) 45%,#3b1d94);box-shadow:0 0 60px #8b5cf688,inset 0 0 20px #ffffff33;transition:transform .2s}
+#orb:hover{transform:scale(1.04)}#orb.live{animation:pulse 1.2s infinite}
+@keyframes pulse{50%{box-shadow:0 0 100px #a78bfaee,inset 0 0 20px #ffffff55;transform:scale(1.08)}}
+#chat{width:100%;flex:1;overflow:auto;max-height:340px;display:flex;flex-direction:column;gap:8px;padding:4px}
+.b{padding:10px 14px;border-radius:14px;max-width:85%;font-size:14px;line-height:1.5}
+.b.u{align-self:flex-end;background:var(--p);color:#fff}.b.v{align-self:flex-start;background:var(--navy2);border:1px solid var(--line)}
+.b.e{align-self:center;color:var(--bad);font-size:12px}
+form{display:flex;gap:8px;width:100%}
+input{flex:1;background:#080c28;border:1px solid var(--line);border-radius:12px;padding:11px 14px;color:var(--t);font:inherit;font-size:14px}
+input:focus,button:focus-visible{outline:2px solid var(--p2);outline-offset:2px}
+.btn{background:var(--p);color:#fff;border:0;border-radius:12px;padding:10px 16px;font:inherit;font-size:14px;cursor:pointer}
+.btn.g{background:none;border:1px solid var(--line);color:var(--t)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;width:100%}.chips button{background:#0b1136;border:1px solid var(--line);color:var(--m);border-radius:99px;padding:6px 12px;font:inherit;font-size:12px;cursor:pointer}
+.chips button:hover{color:var(--t);border-color:var(--p)}
+.side{display:flex;flex-direction:column;gap:18px}
+ul{list-style:none;margin:0;padding:0;font-size:13px;display:flex;flex-direction:column;gap:6px}
+li{display:flex;justify-content:space-between;gap:10px;padding:8px 10px;background:#0a0f30;border-radius:10px}
+li span:first-child{color:var(--p2)}#mcp{max-height:180px;overflow:auto;font-size:12px;color:var(--m)}
+#mcp .ok{color:var(--ok)}#mcp .no{color:var(--bad)}
+.ov{position:fixed;inset:0;background:#02030acc;backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px;z-index:9}
+.ov.open{display:flex}.modal{background:linear-gradient(180deg,#171f5a,#0b1034);border:1px solid var(--p);border-radius:20px;padding:24px;max-width:440px;width:100%;box-shadow:0 0 80px #8b5cf655}
+.modal h3{margin:0 0 6px;color:var(--p2);font-size:14px}.modal p{margin:0 0 18px;font-size:17px;line-height:1.5}
+.row{display:flex;gap:10px}.row .btn{flex:1}.hint{font-size:12px;color:var(--m);margin-top:12px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<header>
+ <h1>Vaani<small>On time. Private. Never acts without asking.</small></h1>
+ <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+  <label style="font-size:12px;color:var(--m)"><input type="checkbox" id="voiceOn" checked style="flex:none"> Voice replies</label>
+  <div class="seg" id="seg"><button data-l="en" class="on">English</button><button data-l="hi">हिंदी</button><button data-l="kn">ಕನ್ನಡ</button></div>
+ </div>
+</header>
+<main>
+ <section class="card stage">
+  <button id="orb" aria-label="Tap to speak">Tap to speak</button>
+  <div id="chat" aria-live="polite"></div>
+  <form id="f"><input id="txt" placeholder="Or type here" autocomplete="off"><button class="btn">Send</button></form>
+  <div class="chips" id="chips"></div>
+ </section>
+ <aside class="side">
+  <section class="card"><h2>Today</h2><ul id="ev"></ul><p style="margin:10px 0 0"><button class="btn g" id="nudge" style="font-size:12px;padding:6px 12px">Preview nudge</button></p></section>
+  <section class="card"><h2>Private vault</h2><div id="vc" style="font-size:13px;color:var(--m)"></div></section>
+  <section class="card"><h2>MCP tool calls</h2><div id="mcp"></div></section>
+ </aside>
+</main>
+
+<div class="ov" id="guard"><div class="modal" role="dialog" aria-modal="true"><h3>Approval needed</h3><p id="gText"></p>
+ <div class="row"><button class="btn g" id="no">No, cancel</button><button class="btn" id="yes">Yes, go ahead</button></div>
+ <div class="hint">Say yes or no (haan / nahi / haudu / illa), or press Enter / Esc.</div></div></div>
+<div class="ov" id="pinov"><div class="modal"><h3>Vault PIN</h3><p id="pinMsg"></p>
+ <input id="pin" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN" style="width:100%;margin-bottom:14px">
+ <div class="row"><button class="btn g" id="pinNo">Cancel</button><button class="btn" id="pinOk">Unlock</button></div>
+ <div class="hint">First time? Whatever PIN you enter now becomes your vault PIN. Data is encrypted on this device (AES-GCM).</div></div></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const L={en:'en-IN',hi:'hi-IN',kn:'kn-IN'};let lang='en';
+const S={
+en:{hello:'Hi, I’m Vaani. Tell me what you need.',sched:n=>n?`You have ${n} things today.`:'Your day is clear.',askAdd:(t,w)=>`Should I add “${t}” at ${w}?`,askSend:(r,m)=>`Should I send ${r}: “${m}”?`,askSave:l=>`Should I save ${l} in your vault?`,done:'Done.',cancel:'Okay, I won’t do that.',nope:'I didn’t catch that. Try a reminder, a message, or your vault.',pin:'Enter your PIN to open the vault.',found:(l,v)=>`Your ${l} is ${v}`,nf:'I couldn’t find that in your vault.',wp:'Wrong PIN.',notime:'What time should I set it for?',clash:t=>`Heads up, close to “${t}”.`,nudge:(t,n)=>`Leave in ${n} minutes for “${t}”.`,saved:'Saved to your vault.'},
+hi:{hello:'नमस्ते, मैं वाणी हूँ। बताइए क्या करना है?',sched:n=>n?`आज आपके ${n} काम हैं।`:'आज आपका दिन खाली है।',askAdd:(t,w)=>`क्या मैं “${t}” ${w} पर जोड़ दूँ?`,askSend:(r,m)=>`क्या मैं ${r} को भेजूँ: “${m}”?`,askSave:l=>`क्या मैं ${l} वॉल्ट में सहेज दूँ?`,done:'हो गया।',cancel:'ठीक है, मैं यह नहीं करूँगी।',nope:'समझ नहीं आया। रिमाइंडर, संदेश या वॉल्ट आज़माइए।',pin:'वॉल्ट खोलने के लिए पिन डालिए।',found:(l,v)=>`आपका ${l} है ${v}`,nf:'यह वॉल्ट में नहीं मिला।',wp:'गलत पिन।',notime:'किस समय के लिए लगाऊँ?',clash:t=>`ध्यान दें, “${t}” के पास है।`,nudge:(t,n)=>`“${t}” के लिए ${n} मिनट में निकलिए।`,saved:'वॉल्ट में सहेज लिया।'},
+kn:{hello:'ನಮಸ್ಕಾರ, ನಾನು ವಾಣಿ. ಏನು ಬೇಕು ಹೇಳಿ?',sched:n=>n?`ಇಂದು ನಿಮಗೆ ${n} ಕೆಲಸಗಳಿವೆ.`:'ಇಂದು ನಿಮ್ಮ ದಿನ ಖಾಲಿ ಇದೆ.',askAdd:(t,w)=>`“${t}” ಅನ್ನು ${w}ಕ್ಕೆ ಸೇರಿಸಲೇ?`,askSend:(r,m)=>`${r} ಅವರಿಗೆ ಕಳುಹಿಸಲೇ: “${m}”?`,askSave:l=>`${l} ಅನ್ನು ವಾಲ್ಟ್‌ನಲ್ಲಿ ಉಳಿಸಲೇ?`,done:'ಆಯ್ತು.',cancel:'ಸರಿ, ಮಾಡುವುದಿಲ್ಲ.',nope:'ಅರ್ಥವಾಗಲಿಲ್ಲ. ರಿಮೈಂಡರ್, ಸಂದೇಶ ಅಥವಾ ವಾಲ್ಟ್ ಪ್ರಯತ್ನಿಸಿ.',pin:'ವಾಲ್ಟ್ ತೆರೆಯಲು ಪಿನ್ ಹಾಕಿ.',found:(l,v)=>`ನಿಮ್ಮ ${l} ${v}`,nf:'ವಾಲ್ಟ್‌ನಲ್ಲಿ ಸಿಗಲಿಲ್ಲ.',wp:'ತಪ್ಪು ಪಿನ್.',notime:'ಯಾವ ಸಮಯಕ್ಕೆ ಹೊಂದಿಸಲಿ?',clash:t=>`ಗಮನಿಸಿ, “${t}” ಹತ್ತಿರವಿದೆ.`,nudge:(t,n)=>`“${t}” ಗೆ ${n} ನಿಮಿಷದಲ್ಲಿ ಹೊರಡಿ.`,saved:'ವಾಲ್ಟ್‌ನಲ್ಲಿ ಉಳಿಸಲಾಗಿದೆ.'}};
+const MSG={reached:{en:'I’ve reached safely.',hi:'मैं सुरक्षित पहुँच गया।',kn:'ನಾನು ಸುರಕ್ಷಿತವಾಗಿ ತಲುಪಿದೆ.'},late:{en:n=>`I’ll be late by ${n} minutes.`,hi:n=>`मुझे ${n} मिनट देर होगी।`,kn:n=>`ನನಗೆ ${n} ನಿಮಿಷ ತಡವಾಗುತ್ತದೆ.`}};
+const CHIPS={en:['What’s my schedule today?','Remind me to call Appa at 6 pm','Tell Appa I reached','Tell Amma I’ll be late by 20 minutes','Remember my locker code is 4521','What is my locker code'],
+hi:['आज का कार्यक्रम बताओ','शाम 6 बजे अप्पा को फोन करने की याद दिलाओ','अप्पा को बोलो मैं पहुँच गया','याद रखो लॉकर कोड 4521 है','मेरा लॉकर कोड क्या है'],
+kn:['ಇಂದಿನ ವೇಳಾಪಟ್ಟಿ ಹೇಳು','ಸಂಜೆ 6 ಗಂಟೆಗೆ ಅಪ್ಪನಿಗೆ ಕರೆ ಮಾಡಲು ನೆನಪಿಸು','ಅಪ್ಪನಿಗೆ ತಲುಪಿದೆ ಅಂತ ಹೇಳು','ನೆನಪಿಡು ಲಾಕರ್ ಕೋಡ್ 4521 ಇದೆ','ನನ್ನ ಲಾಕರ್ ಕೋಡ್ ಏನು']};
+const R={remind:/remind|याद दिला|रिमाइंड|ನೆನಪಿಸು|ರಿಮೈಂಡ್/i,save:/remember|save|store|याद रखो|सहेज|सेव|ನೆನಪಿಡು|ಉಳಿಸು/i,
+sched:/schedule|agenda|calendar|my day|कार्यक्रम|शेड्यूल|आज का|ವೇಳಾಪಟ್ಟಿ|ಕಾರ್ಯಕ್ರಮ|ಇಂದಿನ/i,
+get:/(what('|’)?s|what is|show|get|retrieve|tell me).*\bmy\b|(मेरा|मेरी).*(क्या|बताओ|बताइए)|ನನ್ನ.*(ಏನು|ಹೇಳು)/i,
+msg:/tell|message|text|send|बोल|कह|बता|मैसेज|संदेश|ಹೇಳು|ಹೇಳಿ|ಸಂದೇಶ/i};
+const YES=/\b(yes|yeah|yep|ok|okay|sure|send|confirm|go ahead|do it)\b|हाँ|हां|ठीक|भेज|ಹೌದು|ಸರಿ|ಆಯ್ತು|ಕಳುಹಿಸು/i;
+const NO=/\b(no|nope|cancel|stop|don'?t)\b|नहीं|नही|मत|रुको|ಬೇಡ|ಇಲ್ಲ|ನಿಲ್ಲಿಸು/i;
+const NAMES=['amma','appa','mom','dad','papa','mummy','अम्मा','अप्पा','माँ','पापा','ಅಮ್ಮ','ಅಪ್ಪ'];
+
+/* state */
+const ld=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}};
+let events=ld('vaani_ev',[{title:'Team standup',min:600},{title:'Project review',min:960}]);
+let vcount=ld('vaani_n',0);
+const sv=()=>{localStorage.setItem('vaani_ev',JSON.stringify(events));localStorage.setItem('vaani_n',vcount)};
+const fmt=m=>{const h=Math.floor(m/60),x=String(m%60).padStart(2,'0');return `${(h%12)||12}:${x} ${h<12?'AM':'PM'}`};
+
+/* ui helpers */
+function log(k,t){const d=document.createElement('div');d.className='b '+k;d.textContent=t;$('#chat').append(d);$('#chat').scrollTop=1e9}
+function mcp(n,a,r){const d=document.createElement('div');d.innerHTML=`${n} <span class="${r==='ok'?'ok':'no'}">${r==='ok'?'approved/ran':r}</span>`;$('#mcp').prepend(d)}
+function render(){events.sort((a,b)=>a.min-b.min);$('#ev').innerHTML=events.map(e=>`<li><span>${fmt(e.min)}</span><span>${e.title.replace(/</g,'&lt;')}</span></li>`).join('');
+ $('#vc').textContent=vcount?`Locked. ${vcount} secret${vcount>1?'s':''} stored, encrypted on this device. PIN needed to read.`:'Empty. Say “remember my locker code is 4521”.'}
+function chips(){$('#chips').innerHTML='';CHIPS[lang].forEach(c=>{const b=document.createElement('button');b.textContent=c;b.onclick=()=>handle(c);$('#chips').append(b)})}
+function say(t){log('v',t);return new Promise(res=>{if(!window.speechSynthesis||!$('#voiceOn').checked)return res();
+ const u=new SpeechSynthesisUtterance(t),vs=speechSynthesis.getVoices();u.lang=L[lang];
+ const v=vs.find(v=>v.lang.replace('_','-')===L[lang])||vs.find(v=>v.lang.startsWith(lang));if(v)u.voice=v;
+ u.onend=u.onerror=()=>res();speechSynthesis.cancel();speechSynthesis.speak(u);setTimeout(res,15000)})}
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec;
+function listen(){return new Promise(res=>{if(!SR)return res(null);try{rec=new SR();rec.lang=L[lang];rec.interimResults=false;
+ rec.onresult=e=>res(e.results[0][0].transcript);rec.onerror=()=>res(null);rec.onend=()=>res(null);rec.start()}catch{res(null)}})}
+
+/* approval guard */
+let gid=0;
+async function approve(text){const my=++gid;$('#gText').textContent=text;$('#guard').classList.add('open');
+ return new Promise(async res=>{const fin=v=>{if(my!==gid)return;gid++;try{rec&&rec.abort()}catch{}speechSynthesis.cancel();$('#guard').classList.remove('open');res(v)};
+  $('#yes').onclick=()=>fin(true);$('#no').onclick=()=>fin(false);
+  await say(text);if(my!==gid)return;
+  const h=await listen();if(my!==gid||h===null)return;log('u',h);
+  if(NO.test(h))fin(false);else if(YES.test(h))fin(true)})}
+function askPin(){return new Promise(async res=>{$('#pinMsg').textContent=S[lang].pin;$('#pin').value='';$('#pinov').classList.add('open');$('#pin').focus();
+ const end=v=>{$('#pinov').classList.remove('open');res(v)};$('#pinOk').onclick=()=>end($('#pin').value);$('#pinNo').onclick=()=>end(null);
+ $('#pin').onkeydown=e=>{if(e.key==='Enter')end($('#pin').value)}})}
+
+/* vault: PBKDF2 + AES-GCM, all local */
+const enc=new TextEncoder(),dec=new TextDecoder();
+const b64=b=>btoa(String.fromCharCode(...new Uint8Array(b))),ub64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function dk(pin,salt){const m=await crypto.subtle.importKey('raw',enc.encode(pin),'PBKDF2',false,['deriveKey']);
+ return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:150000,hash:'SHA-256'},m,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
+async function vOpen(pin){const v=localStorage.getItem('vaani_vault');if(!v)return{};const o=JSON.parse(v);
+ try{return JSON.parse(dec.decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:ub64(o.i)},await dk(pin,ub64(o.s)),ub64(o.c))))}catch{return null}}
+async function vSeal(pin,data){const s=crypto.getRandomValues(new Uint8Array(16)),i=crypto.getRandomValues(new Uint8Array(12));
+ const c=await crypto.subtle.encrypt({name:'AES-GCM',iv:i},await dk(pin,s),enc.encode(JSON.stringify(data)));
+ localStorage.setItem('vaani_vault',JSON.stringify({s:b64(s),i:b64(i),c:b64(c)}))}
+const match=(d,l)=>Object.keys(d).find(k=>k===l||k.includes(l)||l.includes(k));
+
+/* MCP-style tool registry. Write tools can only run through call(), which enforces approval. */
+const TOOLS={
+ 'calendar.list':{write:false,run:()=>events},
+ 'calendar.create':{write:true,run:a=>{events.push({title:a.title,min:a.min});sv();render()}},
+ 'messages.send':{write:true,run:a=>log('e',`Outbox → ${a.to}: ${a.body}`)},
+ 'vault.put':{write:true,run:async a=>{const p=await askPin();if(p===null)return;const d=await vOpen(p);if(!d){await say(S[lang].wp);return}
+   d[a.label]=a.value;await vSeal(p,d);vcount=Object.keys(d).length;sv();render();return true}},
+ 'vault.get':{write:false,run:async a=>{const p=await askPin();if(p===null)return;const d=await vOpen(p);if(!d){await say(S[lang].wp);return}
+   const k=match(d,a.label);return k?{label:k,value:d[k]}:{}}}};
+async function call(name,args,ask){const t=TOOLS[name];
+ if(t.write&&!await approve(ask)){mcp(name,args,'rejected');await say(S[lang].cancel);return null}
+ mcp(name,args,'ok');return t.run(args)}
+
+/* intents */
+function parseTime(x){const m=x.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm|बजे|ಗಂಟೆ)?/i);if(!m)return null;let h=+m[1],mi=+(m[2]||0);
+ const pm=/pm|शाम|रात|दोपहर|ಸಂಜೆ|evening|tonight/i.test(x),am=/am|सुबह|ಬೆಳಿಗ್ಗೆ|morning/i.test(x);
+ if(pm&&h<12)h+=12;else if(!pm&&!am&&h<8)h+=12;return{min:h*60+mi,raw:m[0]}}
+async function doRemind(x){const s=S[lang],t=parseTime(x);if(!t)return say(s.notime);
+ let title=x.replace(t.raw,'').replace(/remind(er)?( me)?( to)?|please|\bat\b|\bby\b|याद दिलाओ|याद दिला|रिमाइंड|शाम|सुबह|रात|बजे|की\b|ನೆನಪಿಸು|ಸಂಜೆ|ಗಂಟೆಗೆ|ಬೆಳಿಗ್ಗೆ|\b[ap]m\b/gi,' ').replace(/\s+/g,' ').trim()||'Reminder';
+ const c=events.find(e=>Math.abs(e.min-t.min)<30);
+ const r=await call('calendar.create',{title,min:t.min},s.askAdd(title,fmt(t.min))+(c?' '+s.clash(c.title):''));if(r!==null)await say(s.done)}
+async function doSched(){const s=S[lang],ev=await call('calendar.list',{});
+ await say(s.sched(ev.length)+' '+[...ev].sort((a,b)=>a.min-b.min).map(e=>`${fmt(e.min)} ${e.title}`).join('. '))}
+async function doMsg(x){const s=S[lang],low=x.toLowerCase();
+ let to=NAMES.find(n=>low.includes(n));if(!to){const m=x.match(/(?:tell|message|text)\s+(\w+)/i);to=m?m[1]:null}
+ if(!to)return say(s.nope);to=to[0].toUpperCase()+to.slice(1);
+ let body;const n=x.match(/\d+/);
+ if(/reach|pahunch|पहुँच|पहुंच|ತಲುಪ/i.test(x))body=MSG.reached[lang];
+ else if(/late|der|देर|ತಡ/i.test(x)&&n)body=MSG.late[lang](n[0]);
+ else body=x.replace(/tell|message|text|send|बोलो|बोल|कहो|बताओ|ಹೇಳು|ಹೇಳಿ/gi,'').replace(new RegExp(to,'i'),'').trim();
+ const r=await call('messages.send',{to,body},s.askSend(to,body));if(r!==null)await say(s.done)}
+async function doSave(x){const s=S[lang];
+ const tk=x.replace(R.save,' ').replace(/\b(my|that|is|are)\b|=|:|है|ಇದೆ|मेरा|मेरी|ನನ್ನ/gi,' ').trim().split(/\s+/);
+ if(tk.length<2)return say(s.nope);const value=tk.pop(),label=tk.join(' ').toLowerCase();
+ const r=await call('vault.put',{label,value},s.askSave(label));
+ if(r)await say(s.saved)}
+async function doGet(x){const s=S[lang];
+ const lab=x.toLowerCase().replace(/[?]/g,'').replace(/.*?(\bmy\b|मेरा|मेरी|ನನ್ನ)/,'').replace(/क्या|है|बताओ|बताइए|ಏನು|ಹೇಳು/g,'').trim();
+ const r=await call('vault.get',{label:lab});if(r===undefined)return;
+ await say(r&&r.label?s.found(r.label,r.value):s.nf)}
+async function handle(x){x=(x||'').trim();if(!x)return;log('u',x);
+ try{if(R.remind.test(x))await doRemind(x);else if(R.save.test(x))await doSave(x);else if(R.sched.test(x))await doSched();
+  else if(R.get.test(x))await doGet(x);else if(R.msg.test(x))await doMsg(x);else await say(S[lang].nope)}
+ catch(e){log('e',e.message)}}
+
+/* wiring */
+$('#orb').onclick=async()=>{if(!SR){log('e','Speech input needs Chrome or Edge. Type instead.');return}
+ speechSynthesis.cancel();$('#orb').classList.add('live');$('#orb').textContent='Listening';const h=await listen();
+ $('#orb').classList.remove('live');$('#orb').textContent='Tap to speak';if(h)handle(h)};
+$('#f').onsubmit=e=>{e.preventDefault();const v=$('#txt').value;$('#txt').value='';handle(v)};
+$('#seg').onclick=e=>{const l=e.target.dataset.l;if(!l)return;lang=l;document.documentElement.lang=l;
+ [...$('#seg').children].forEach(b=>b.classList.toggle('on',b.dataset.l===l));chips();say(S[l].hello)};
+$('#nudge').onclick=()=>{const e=[...events].sort((a,b)=>a.min-b.min).pop();say(S[lang].nudge(e.title,15))};
+setInterval(()=>{const d=new Date(),now=d.getHours()*60+d.getMinutes();
+ events.forEach(e=>{const n=e.min-now;if(n>0&&n<=15&&!e.n){e.n=1;say(S[lang].nudge(e.title,n))}})},20000);
+document.addEventListener('keydown',e=>{if(!$('#guard').classList.contains('open'))return;if(e.key==='Enter')$('#yes').click();if(e.key==='Escape')$('#no').click()});
+render();chips();log('v',S.en.hello);
+</script></body></html>
